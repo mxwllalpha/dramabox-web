@@ -1,5 +1,34 @@
 /**
- * Cache duration constants (in seconds)
+ * ===========================================
+ * API Configuration
+ * ===========================================
+ * Centralized API settings - no need for environment variables
+ */
+export const API_CONFIG = {
+  /** Upstream API base URL */
+  UPSTREAM_API: "https://api.megawe.net",
+  /** Default language for API requests */
+  DEFAULT_LANGUAGE: "in",
+} as const;
+
+/**
+ * ===========================================
+ * Feature Flags
+ * ===========================================
+ * Easy toggle for optional features
+ * Set to false to disable specific features
+ */
+export const FEATURES = {
+  /** Vercel Web Analytics - tracks page views and custom events */
+  VERCEL_ANALYTICS: true,
+  /** Vercel Speed Insights - monitors Web Vitals (LCP, FID, CLS, etc.) */
+  SPEED_INSIGHTS: true,
+} as const;
+
+/**
+ * ===========================================
+ * Cache Duration Constants (in seconds)
+ * ===========================================
  * Centralized cache configuration for ISR and API routes
  */
 export const CACHE_DURATION = {

@@ -5,7 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import type { SupportedLanguage } from "@/types/language";
-import { useState } from "react";
+import { useState, Suspense } from "react";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { FEATURES } from "@/lib/constants";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -40,6 +43,11 @@ export function Providers({ children, language = 'in' }: ProvidersProps) {
           <TooltipProvider>{children}</TooltipProvider>
         </LanguageProvider>
       </ThemeProvider>
+      {/* Vercel Analytics & Speed Insights - wrapped in Suspense for performance */}
+      <Suspense fallback={null}>
+        {FEATURES.VERCEL_ANALYTICS && <Analytics />}
+        {FEATURES.SPEED_INSIGHTS && <SpeedInsights />}
+      </Suspense>
     </QueryClientProvider>
   );
 }

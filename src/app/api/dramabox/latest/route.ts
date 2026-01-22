@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const UPSTREAM_API = process.env.UPSTREAM_API || "https://api.megawe.net";
-const DEFAULT_LANGUAGE = process.env.DEFAULT_LANGUAGE || "in";
+import { API_CONFIG } from "@/lib/constants";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const lang = searchParams.get("lang") || DEFAULT_LANGUAGE;
+  const lang = searchParams.get("lang") || API_CONFIG.DEFAULT_LANGUAGE;
 
   try {
-    const response = await fetch(`${UPSTREAM_API}/api/dramabox/latest?lang=${lang}`, {
+    const response = await fetch(`${API_CONFIG.UPSTREAM_API}/api/dramabox/latest?lang=${lang}`, {
       next: { revalidate: 600 }, // Cache for 10 minutes
     });
 
