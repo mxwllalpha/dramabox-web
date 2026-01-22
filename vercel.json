@@ -61,8 +61,8 @@
   ],
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "source": "/api/dramabox/:path*",
+      "destination": "https://api.megawe.net/api/dramabox/:path*"
     }
   ]
 }
