@@ -64,7 +64,7 @@ const nextConfig: NextConfig = {
   // Vercel Edge Runtime Configuration
   // ===========================================
 
-  // Security headers for all routes
+  // Security headers and Cache Control
   async headers() {
     return [
       {
@@ -85,6 +85,34 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "s-maxage=60, stale-while-revalidate=300",
+          },
+        ],
+      },
+      // Aggressive caching for static assets (images, fonts)
+      {
+        source: "/_next/image(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/(.*).(jpg|jpeg|png|webp|avif|svg|ico)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/(.*).(woff|woff2|ttf|otf)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

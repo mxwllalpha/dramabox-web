@@ -1,10 +1,26 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Space_Grotesk } from "next/font/google";
+import dynamic from "next/dynamic";
 import "@/styles/globals.css";
 import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { SWUpdateBanner } from "@/components/SWUpdateBanner";
 import { registerSW } from "@/lib/sw-registration";
+import { cn } from "@/lib/utils";
+
+const Toaster = dynamic(() => import("@/components/ui/toaster").then(mod => mod.Toaster));
+const Sonner = dynamic(() => import("@/components/ui/sonner").then(mod => mod.Toaster));
+const SWUpdateBanner = dynamic(() => import("@/components/SWUpdateBanner").then(mod => mod.SWUpdateBanner));
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space",
+  display: "swap",
+});
 
 // ============================================
 // PWA Metadata
@@ -94,18 +110,17 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#8b5cf6" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
 
-        {/* Preconnect for fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-
         {/* PWA Mobile Web App Capable */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="DramaBox" />
       </head>
-      <body className="font-sans antialiased">
+      <body className={cn(
+        "font-sans antialiased",
+        inter.variable,
+        spaceGrotesk.variable
+      )}>
         <Providers>
           {children}
           <Toaster />

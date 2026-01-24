@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Play, Flame } from "lucide-react";
 import type { Drama } from "@/types/drama";
 import type { SupportedLanguage } from "@/types/language";
@@ -11,8 +12,11 @@ interface DramaCardProps {
 }
 
 export function DramaCard({ drama, index = 0, language = 'in' }: DramaCardProps) {
-  const coverUrl = drama.coverWap || drama.cover;
+  const coverUrl = drama.coverWap || drama.cover || "/placeholder-.svg"; // Added fallback
   const tags = drama.tags || drama.tagNames || [];
+
+  // High priority for the first 6 items to improve LCP
+  const isPriority = index < 6;
 
   return (
     <Link
@@ -21,21 +25,23 @@ export function DramaCard({ drama, index = 0, language = 'in' }: DramaCardProps)
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {/* Cover Image */}
-      <div className="aspect-[2/3] relative overflow-hidden">
-        <img
+      <div className="aspect-[2/3] relative overflow-hidden bg-muted">
+        <Image
           src={coverUrl}
           alt={drama.bookName}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          loading="lazy"
+          fill
+          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          priority={isPriority}
         />
-        
+
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-80" />
-        
+
         {/* Corner Badge */}
         {drama.corner && (
           <div
-            className="absolute top-3 left-3 badge-popular"
+            className="absolute top-3 left-3 badge-popular z-10"
             style={{ backgroundColor: drama.corner.color }}
           >
             {drama.corner.name}
@@ -44,27 +50,27 @@ export function DramaCard({ drama, index = 0, language = 'in' }: DramaCardProps)
 
         {/* Rank Badge */}
         {drama.rankVo && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-sm">
+          <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-background/80 backdrop-blur-sm z-10">
             <Flame className="w-3.5 h-3.5 text-secondary" />
             <span className="text-xs font-bold">{drama.rankVo.hotCode}</span>
           </div>
         )}
 
         {/* Episode Count */}
-        <div className="absolute bottom-3 left-3 episode-count">
+        <div className="absolute bottom-3 left-3 episode-count z-10">
           <Play className="w-3 h-3 text-primary" />
           <span>{drama.chapterCount} {t(language, "detail.episodes")}</span>
         </div>
 
         {/* Play Count */}
         {drama.playCount && (
-          <div className="absolute bottom-3 right-3 play-count">
+          <div className="absolute bottom-3 right-3 play-count z-10">
             <span>{drama.playCount} {t(language, "detail.views")}</span>
           </div>
         )}
 
         {/* Hover Play Button */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
           <button className="w-14 h-14 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center transform scale-75 group-hover:scale-100 transition-transform duration-300 shadow-lg">
             <Play className="w-6 h-6 text-white fill-white ml-1" />
           </button>

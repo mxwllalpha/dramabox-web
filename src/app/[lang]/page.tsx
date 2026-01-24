@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { fetchDramasServer } from "@/lib/server-fetch";
 import type { Metadata } from "next";
 import type { SupportedLanguage } from "@/types/language";
 import { isSupportedLanguage } from "@/lib/i18n";
@@ -43,26 +45,29 @@ export default async function LangHomePage({ params }: LangPageProps) {
     notFound();
   }
 
-  return (
-    <main className="min-h-screen">
-      <HeroSection
-        titleKey="home.forYou"
-        fallbackTitle="Untuk Kamu"
-        descriptionKey="home.forYouDescription"
-        fallbackDescription="Drama pilihan yang dipersonalisasi khusus untukmu. Temukan cerita seru yang sesuai selera!"
-        icon="sparkles"
-        lang={language}
-      />
+  const queryClient = new QueryClient();
 
-      <div className="container mx-auto px-4 pb-12">
-        <Suspense fallback={
-          <div className="flex justify-center py-12">
-            <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin" />
-          </div>
-        }>
+  await queryClient.prefetchQuery({
+    queryKey: ["dramas", "foryou", language],
+    queryFn: () => fetchDramasServer(language),
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <main className="min-h-screen">
+        <HeroSection
+          titleKey="home.forYou"
+          fallbackTitle="Untuk Kamu"
+          descriptionKey="home.forYouDescription"
+          fallbackDescription="Drama pilihan yang dipersonalisasi khusus untukmu. Temukan cerita seru yang sesuai selera!"
+          icon="sparkles"
+          lang={language}
+        />
+
+        <div className="container mx-auto px-4 pb-12">
           <ForYouDramas lang={language} />
-        </Suspense>
-      </div>
-    </main>
+        </div>
+      </main>
+    </HydrationBoundary>
   );
 }
