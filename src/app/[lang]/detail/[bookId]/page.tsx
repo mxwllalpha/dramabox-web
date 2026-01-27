@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import type { SupportedLanguage } from "@/types/language";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { DramaDetailDirect, DramaDetailResponseLegacy } from "@/types/drama";
+import { Breadcrumb, createBreadcrumbFromPath } from "@/components/Breadcrumb";
 
 // Helper to check if response is new format
 function isDirectFormat(data: unknown): data is DramaDetailDirect {
@@ -92,6 +93,18 @@ export default function DetailPage({ params }: DetailPageProps) {
 
   return (
     <main className="min-h-screen pt-20">
+      {/* Breadcrumb Navigation */}
+      <div className="container mx-auto px-4 py-4">
+        <Breadcrumb
+          items={createBreadcrumbFromPath(
+            language,
+            '/detail',
+            book.bookName,
+            book.bookId
+          )}
+        />
+      </div>
+
       {/* Hero Section with Cover */}
       <div className="relative">
         {/* Background Blur */}

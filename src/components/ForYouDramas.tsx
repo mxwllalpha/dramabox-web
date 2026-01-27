@@ -3,6 +3,7 @@
 import { DramaGrid } from "@/components/DramaGrid";
 import { useForYouDramas } from "@/hooks/useDramas";
 import type { SupportedLanguage } from "@/types/language";
+import { ItemListSchema, dramaToItemListItems } from "@/components/structured-data/ItemListSchema";
 
 interface ForYouDramasProps {
   lang: SupportedLanguage;
@@ -21,5 +22,17 @@ export function ForYouDramas({ lang }: ForYouDramasProps) {
     );
   }
 
-  return <DramaGrid dramas={dramas} isLoading={isLoading} language={lang} />;
+  return (
+    <>
+      {/* ItemList Schema for SEO */}
+      {dramas && dramas.length > 0 && (
+        <ItemListSchema
+          itemListName={`Drama Untuk Kamu - ${lang}`}
+          items={dramaToItemListItems(dramas, lang)}
+        />
+      )}
+
+      <DramaGrid dramas={dramas} isLoading={isLoading} language={lang} />
+    </>
+  );
 }

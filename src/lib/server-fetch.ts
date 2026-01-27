@@ -2,6 +2,16 @@ import { API_CONFIG } from "@/lib/constants";
 import type { SupportedLanguage } from "@/types/language";
 import type { Drama } from "@/types/drama";
 
+/**
+ * Vercel Runtime Configuration
+ *
+ * IMPORTANT: This file uses 'nodejs' runtime because:
+ * - It performs fetch requests to external APIs (api.megawe.net)
+ * - Edge Runtime has limitations for external API calls
+ * - Node.js runtime provides full fetch API support
+ */
+export const runtime = 'nodejs';
+
 interface ApiResponse<T> {
     success: boolean;
     data: T;
@@ -16,14 +26,18 @@ export async function fetchDramasServer(lang: SupportedLanguage = "in"): Promise
         });
 
         if (!response.ok) {
-            console.error("Upstream API error:", response.status);
-            return [];
+            throw new Error(`Upstream API error: ${response.status} ${response.statusText}`);
         }
 
         const result: ApiResponse<Drama[]> = await response.json();
-        return result.data || [];
+
+        if (!result.success || !result.data) {
+            throw new Error(result.message || "Invalid API response format");
+        }
+
+        return result.data;
     } catch (error) {
-        console.error("Server fetch error:", error);
-        return [];
+        console.error("[server-fetch] Failed to fetch dramas:", error);
+        throw error; // Re-throw to let React Query handle the error
     }
 }

@@ -5,6 +5,8 @@ import "@/styles/globals.css";
 import { Providers } from "@/components/providers";
 import { registerSW } from "@/lib/sw-registration";
 import { cn } from "@/lib/utils";
+import { OrganizationSchema } from "@/components/structured-data/OrganizationSchema";
+import { WebSiteSchema } from "@/components/structured-data/WebSiteSchema";
 
 const Toaster = dynamic(() => import("@/components/ui/toaster").then(mod => mod.Toaster));
 const Sonner = dynamic(() => import("@/components/ui/sonner").then(mod => mod.Toaster));
@@ -97,6 +99,10 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
+        {/* SEO Structured Data */}
+        <OrganizationSchema />
+        <WebSiteSchema />
+
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
 

@@ -15,6 +15,9 @@ export function DramaCard({ drama, index = 0, language = 'in' }: DramaCardProps)
   const coverUrl = drama.coverWap || drama.cover || "/placeholder-.svg"; // Added fallback
   const tags = drama.tags || drama.tagNames || [];
 
+  // Generate SEO-optimized alt text
+  const altText = `${drama.bookName} - Poster drama ${tags.length > 0 ? `genre ${tags.slice(0, 2).join(', ')}` : ''}. ${drama.chapterCount} episode tersedia.`;
+
   // High priority for the first 6 items to improve LCP
   const isPriority = index < 6;
 
@@ -28,7 +31,8 @@ export function DramaCard({ drama, index = 0, language = 'in' }: DramaCardProps)
       <div className="aspect-[2/3] relative overflow-hidden bg-muted">
         <Image
           src={coverUrl}
-          alt={drama.bookName}
+          alt={altText}
+          title={drama.bookName}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 16vw"
           className="object-cover transition-transform duration-500 group-hover:scale-110"

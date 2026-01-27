@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import type { SupportedLanguage } from "@/types/language";
 import { isSupportedLanguage } from "@/lib/i18n";
+import { FAQSection } from "@/components/FAQSection";
 
 export const revalidate = 86400; // ISR every 24 hours
 
@@ -72,6 +73,13 @@ export default async function AboutPage({ params }: AboutPageProps) {
         <Suspense fallback={<div className="max-w-3xl mx-auto"><div className="h-8 bg-muted/50 rounded animate-pulse" /></div>}>
           <AboutContent language={language} />
         </Suspense>
+
+        {/* FAQ Section */}
+        <div className="mt-16">
+          <Suspense fallback={<div className="h-64 bg-muted/50 rounded animate-pulse" />}>
+            <FAQSection />
+          </Suspense>
+        </div>
       </div>
     </main>
   );

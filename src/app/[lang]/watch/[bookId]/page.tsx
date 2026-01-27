@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { DramaDetailDirect, DramaDetailResponseLegacy } from "@/types/drama";
+import { VideoObjectSchema, secondsToISO8601Duration } from "@/components/structured-data/VideoObjectSchema";
+import { Breadcrumb, createBreadcrumbFromPath } from "@/components/Breadcrumb";
 
 // Helper to check if response is new format
 function isDirectFormat(data: unknown): data is DramaDetailDirect {
@@ -184,6 +186,35 @@ export default function WatchPage({ params }: WatchPageProps) {
 
   return (
     <main className="min-h-screen pt-20 pb-12">
+      {/* VideoObject Schema for SEO */}
+      {book && currentEpisodeData && (
+        <VideoObjectSchema
+          title={book.bookName}
+          description={currentEpisodeData.chapterName || `${t("detail.episodes")} ${currentEpisode + 1}`}
+          thumbnailUrl={currentEpisodeData.chapterImg || book.bookId}
+          uploadDate={new Date().toISOString()}
+          duration="PT2M30S" // Default duration, ideally from API
+          embedUrl={`${process.env.NEXT_PUBLIC_SITE_URL || 'https://megawe.net'}/${language}/watch/${book.bookId}?ep=${currentEpisode}`}
+          episodeNumber={currentEpisode + 1}
+          partOfSeries={{
+            name: book.bookName,
+            url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://megawe.net'}/${language}/detail/${book.bookId}`,
+          }}
+        />
+      )}
+
+      {/* Breadcrumb Navigation */}
+      <div className="px-4 py-2">
+        <Breadcrumb
+          items={createBreadcrumbFromPath(
+            language,
+            '/watch',
+            book.bookName,
+            book.bookId
+          )}
+        />
+      </div>
+
       <div className="max-w-7xl mx-auto px-4">
         {/* Back Button */}
         <Link
