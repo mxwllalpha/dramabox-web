@@ -97,8 +97,7 @@ export default function WatchPage({ params }: WatchPageProps) {
     if (!availableQualities.includes(quality)) {
       setQuality(availableQualities[0]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableQualities.join(",")]);
+  }, [availableQualities, quality]); // Include both dependencies properly
 
   // Pagination calculations
   const totalPages = useMemo(() => {
