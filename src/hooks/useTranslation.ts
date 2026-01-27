@@ -136,7 +136,7 @@ export function useTranslation(language: SupportedLanguage) {
       }
       return result;
     };
-  }, [language]);
+  }, [language]); // language is in dependencies, closure captures current value
 
   return {
     t,

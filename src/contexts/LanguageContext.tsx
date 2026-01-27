@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import type { SupportedLanguage } from '@/types/language';
 import {
   DEFAULT_LANGUAGE,
@@ -78,8 +78,14 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
     return null;
   }
 
+  // Create stable context value to prevent infinite re-renders
+  const contextValue = useMemo(
+    () => ({ language, setLanguage }),
+    [language, setLanguage]
+  );
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );
