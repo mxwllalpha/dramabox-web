@@ -1,0 +1,15 @@
+Total messages: 3 (Errors: 3, Warnings: 0)
+
+Error: Minified React error #310; visit https://react.dev/errors/310 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at a_ (https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:64560)
+    at Object.or [as useMemo] (https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:72027)
+    at r.useMemo (https://web-mxwllalpha.vercel.app/_next/static/chunks/c237df071749113a.js:1:23468)
+    at f (https://web-mxwllalpha.vercel.app/_next/static/chunks/a53f4b1589bd02a2.js:1:19025)
+    at av (https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:63275)
+    at oY (https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:83548)
+    at io (https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:94980)
+    at sc (https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:138001)
+    at https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:137846
+    at ss (https://web-mxwllalpha.vercel.app/_next/static/chunks/30ea11065999f7ac.js:1:137854)
+[ERROR] Failed to load resource: the server responded with a status of 401 () @ https://web-mxwllalpha.vercel.app/manifest.json:0
+[ERROR] Manifest fetch from https://web-mxwllalpha.vercel.app/manifest.json failed, code 401 @ https://web-mxwllalpha.vercel.app/in:0

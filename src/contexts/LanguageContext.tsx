@@ -147,12 +147,8 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // languageStorage is stable from useMemo
 
-  // Don't render children until language is initialized to prevent hydration mismatch
-  if (!isInitialized) {
-    return null;
-  }
-
   // Create stable context value to prevent infinite re-renders
+  // CRITICAL: This MUST be before the early return to follow React Rules of Hooks
   // setLanguage is stable due to useCallback with empty deps, only include language
   const contextValue = useMemo<LanguageContextValue>(() => ({
     language,
@@ -160,6 +156,11 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
     isSupported,
     getAvailableLanguages,
   }), [language]);
+
+  // Don't render children until language is initialized to prevent hydration mismatch
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <LanguageContext.Provider value={contextValue}>
