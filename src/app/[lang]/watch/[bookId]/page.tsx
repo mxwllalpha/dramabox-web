@@ -133,15 +133,18 @@ export default function WatchPage({ params }: WatchPageProps) {
   };
 
   const handleVideoEnded = () => {
-    if (!episodes) return;
+    if (!episodes || episodes.length === 0) return;
     const next = currentEpisode + 1;
     if (next <= episodes.length - 1) {
       handleEpisodeChange(next);
     }
   };
 
-  // Now we can have early returns AFTER all hooks
-  if (detailLoading || episodesLoading) {
+  // ===========================================
+  // FIX 2.1: Progressive Loading - Show detail immediately, episodes load progressively
+  // Only wait for detail data, not episodes (server-parallel-fetching best practice)
+  // ===========================================
+  if (detailLoading) {
     return (
       <main className="min-h-screen pt-24 px-4">
         <div className="max-w-7xl mx-auto flex flex-col items-center justify-center py-32">
@@ -172,7 +175,11 @@ export default function WatchPage({ params }: WatchPageProps) {
     book = { bookId: detailData.data.book.bookId, bookName: detailData.data.book.bookName };
   }
 
-  if (!book || !episodes) {
+  // ===========================================
+  // FIX 2.1: Progressive Loading - Allow page render even if episodes are still loading
+  // Only block rendering if book data is missing
+  // ===========================================
+  if (!book) {
     return (
       <div className="min-h-screen pt-24 px-4">
         <div className="max-w-7xl mx-auto text-center py-20">
@@ -295,11 +302,11 @@ export default function WatchPage({ params }: WatchPageProps) {
                     <ChevronLeft className="w-5 h-5" />
                   </button>
                   <span className="text-sm font-medium min-w-[60px] text-center">
-                    {currentEpisode + 1} / {episodes.length}
+                    {currentEpisode + 1} / {episodes?.length ?? "..."}
                   </span>
                   <button
-                    onClick={() => handleEpisodeChange(Math.min(episodes.length - 1, currentEpisode + 1))}
-                    disabled={currentEpisode === episodes.length - 1}
+                    onClick={() => handleEpisodeChange(Math.min((episodes?.length ?? 1) - 1, currentEpisode + 1))}
+                    disabled={!episodes || currentEpisode === episodes.length - 1}
                     className="p-2 rounded-lg bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <ChevronRight className="w-5 h-5" />
@@ -313,68 +320,95 @@ export default function WatchPage({ params }: WatchPageProps) {
           <div className="glass rounded-xl p-4 h-fit lg:max-h-[calc(100vh-140px)] lg:overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-lg">{t("detail.episodes")}</h2>
-              <span className="text-sm text-muted-foreground">{episodes.length} {t("detail.episodes")}</span>
+              <span className="text-sm text-muted-foreground">
+                {episodes ? episodes.length : "..."} {t("detail.episodes")}
+              </span>
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mb-4 pb-4 border-b border-border/50">
-                <button
-                  onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-                  disabled={currentPage === 0}
-                  className="p-1.5 rounded-lg bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-
-                <div className="flex items-center gap-1 flex-wrap justify-center">
-                  {Array.from({ length: totalPages }, (_, i) => (
+            {/* ===========================================
+              FIX 2.1: Progressive Loading - Show skeleton while episodes load
+              =========================================== */}
+            {episodesLoading || !episodes ? (
+              // Loading skeleton for episode list
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2 mb-4 pb-4 border-b border-border/50">
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                  <Skeleton className="h-8 w-16 rounded-lg" />
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </div>
+                <p className="text-xs text-muted-foreground text-center mb-3">
+                  {t("loading.preparingEpisodes")}
+                </p>
+                <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2">
+                  {Array.from({ length: 15 }).map((_, i) => (
+                    <Skeleton key={i} className="aspect-square rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mb-4 pb-4 border-b border-border/50">
                     <button
-                      key={i}
-                      onClick={() => setCurrentPage(i)}
-                      className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === i ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                      onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                      disabled={currentPage === 0}
+                      className="p-1.5 rounded-lg bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+
+                    <div className="flex items-center gap-1 flex-wrap justify-center">
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i)}
+                          className={`min-w-[32px] h-8 rounded-lg text-sm font-medium transition-colors ${
+                            currentPage === i ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                          }`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                      disabled={currentPage === totalPages - 1}
+                      className="p-1.5 rounded-lg bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Episode Range Label */}
+                <p className="text-xs text-muted-foreground text-center mb-3">
+                  {t("detail.episodes")} {startIndex + 1} - {endIndex}
+                </p>
+
+                {/* Episode Grid */}
+                <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2 overflow-y-auto max-h-[400px] lg:max-h-[calc(100vh-340px)] pr-1">
+                  {currentPageEpisodes.map((episode) => (
+                    <button
+                      key={episode.chapterId}
+                      onClick={() => handleEpisodeChange(episode.chapterIndex)}
+                      className={`relative aspect-square rounded-lg font-medium text-sm transition-all hover:scale-105 ${
+                        currentEpisode === episode.chapterIndex
+                          ? "bg-primary text-primary-foreground shadow-lg"
+                          : "bg-muted hover:bg-muted/80"
                       }`}
                     >
-                      {i + 1}
+                      {episode.chapterIndex + 1}
+                      {currentEpisode === episode.chapterIndex && (
+                        <Play className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 opacity-50" />
+                      )}
                     </button>
                   ))}
                 </div>
-
-                <button
-                  onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-                  disabled={currentPage === totalPages - 1}
-                  className="p-1.5 rounded-lg bg-muted hover:bg-muted/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
+              </>
             )}
-
-            {/* Episode Range Label */}
-            <p className="text-xs text-muted-foreground text-center mb-3">
-              {t("detail.episodes")} {startIndex + 1} - {endIndex}
-            </p>
-
-            {/* Episode Grid */}
-            <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2 overflow-y-auto max-h-[400px] lg:max-h-[calc(100vh-340px)] pr-1">
-              {currentPageEpisodes.map((episode) => (
-                <button
-                  key={episode.chapterId}
-                  onClick={() => handleEpisodeChange(episode.chapterIndex)}
-                  className={`relative aspect-square rounded-lg font-medium text-sm transition-all hover:scale-105 ${
-                    currentEpisode === episode.chapterIndex
-                      ? "bg-primary text-primary-foreground shadow-lg"
-                      : "bg-muted hover:bg-muted/80"
-                  }`}
-                >
-                  {episode.chapterIndex + 1}
-                  {currentEpisode === episode.chapterIndex && (
-                    <Play className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 opacity-50" />
-                  )}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>
