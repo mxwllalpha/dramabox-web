@@ -100,7 +100,7 @@ function handleLanguageNavigation(lang: SupportedLanguage): void {
 }
 
 export function LanguageProvider({ children, initialLanguage }: LanguageProviderProps) {
-  // Create versioned storage for language - stable reference
+  // Create versioned storage for language - stable reference with useMemo
   const languageStorage = useMemo(() => createStorage<SupportedLanguage>({
     key: STORAGE_KEYS.LANGUAGE,
     version: STORAGE_VERSIONS.LANGUAGE,
@@ -112,15 +112,17 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load language from storage on mount, or use initialLanguage from route
-  // Note: languageStorage excluded from deps - it's stable and won't change
   useEffect(() => {
     if (initialLanguage) {
-      setLanguageState(initialLanguage);
-      languageStorage.set(initialLanguage);
+      // Only update if different to prevent unnecessary re-renders
+      if (language !== initialLanguage) {
+        setLanguageState(initialLanguage);
+        languageStorage.set(initialLanguage);
+      }
       setIsInitialized(true);
     } else {
       const storedLang = languageStorage.get();
-      if (storedLang !== DEFAULT_LANGUAGE) {
+      if (storedLang && storedLang !== DEFAULT_LANGUAGE) {
         setLanguageState(storedLang);
       } else {
         const browserLang = getLanguageFromBrowser(navigator.language);
@@ -129,6 +131,8 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
       }
       setIsInitialized(true);
     }
+    // Note: languageStorage is stable from useMemo, safe to exclude from deps
+    // We check language !== initialLanguage inside to prevent unnecessary updates
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLanguage]);
 
@@ -137,6 +141,7 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
     setLanguageState(lang);
     languageStorage.set(lang);
     handleLanguageNavigation(lang);
+    // Note: languageStorage is stable from useMemo, safe to exclude from deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -146,7 +151,7 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
   }
 
   // Create stable context value to prevent infinite re-renders
-  // setLanguage is already stable due to useCallback, don't include it in deps
+  // setLanguage is stable due to useCallback with empty deps, only include language
   const contextValue = useMemo<LanguageContextValue>(() => ({
     language,
     setLanguage,
