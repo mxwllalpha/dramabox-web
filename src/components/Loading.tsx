@@ -8,7 +8,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
+
+// Hoist static array to prevent recreation on each render
+const LOADING_DOTS_INDICES = [0, 1, 2] as const;
 
 /**
  * Spinner Component
@@ -239,7 +242,7 @@ export function LoadingDots({ size = "md", className = "" }: LoadingDotsProps) {
 
   return (
     <div className={cn("flex items-center justify-center gap-1", className)} aria-hidden="true">
-      {[0, 1, 2].map((i) => (
+      {LOADING_DOTS_INDICES.map((i) => (
         <div
           key={i}
           className={cn(

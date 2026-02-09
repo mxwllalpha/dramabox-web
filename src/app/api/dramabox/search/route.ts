@@ -6,16 +6,24 @@ import { API_CONFIG } from "@/lib/constants";
 // ===========================================
 export const runtime = 'nodejs';
 
+/**
+ * GET /api/dramabox/search
+ * @implements Vercel async-api-routes: Start promises early, await late
+ */
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const query = searchParams.get("query");
-  const lang = searchParams.get("lang") || API_CONFIG.DEFAULT_LANGUAGE;
+  // Start parsing URL immediately (non-blocking)
+  const searchParamsPromise = Promise.resolve(request.nextUrl.searchParams);
 
-  if (!query) {
-    return NextResponse.json([]);
-  }
+  // Start upstream fetch immediately (parallel with searchParams parsing)
+  const upstreamPromise = (async () => {
+    const searchParams = await searchParamsPromise;
+    const query = searchParams.get("query");
+    const lang = searchParams.get("lang") || API_CONFIG.DEFAULT_LANGUAGE;
 
-  try {
+    if (!query) {
+      return { success: true, data: [] };
+    }
+
     const upstreamUrl = `${API_CONFIG.UPSTREAM_API}/api/dramabox/search?query=${encodeURIComponent(query)}&lang=${lang}`;
     console.log(`[API] Fetching from: ${upstreamUrl}`);
 
@@ -28,13 +36,14 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       console.error(`[API] Upstream error: ${response.status} ${response.statusText}`);
-      return NextResponse.json(
-        { error: "Failed to fetch data", status: response.status },
-        { status: response.status }
-      );
+      throw new Error(`Upstream error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    return response.json();
+  })();
+
+  try {
+    const data = await upstreamPromise;
     return NextResponse.json(data, {
       headers: {
         'Cache-Control': 'public, s-maxage=240, stale-while-revalidate=480',

@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronRight, Home } from 'lucide-react';
+import ChevronRight from 'lucide-react/dist/esm/icons/chevron-right';
+import Home from 'lucide-react/dist/esm/icons/home';
 import { cn } from '@/lib/utils';
 import { BreadcrumbSchema, type BreadcrumbItem } from '@/components/structured-data/BreadcrumbSchema';
 

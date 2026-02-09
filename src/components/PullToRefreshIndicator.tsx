@@ -5,7 +5,7 @@
 
 "use client";
 
-import { Loader2 } from "lucide-react";
+import Loader2 from 'lucide-react/dist/esm/icons/loader-2';
 import { cn } from "@/lib/utils";
 
 interface PullToRefreshIndicatorProps {
@@ -45,12 +45,13 @@ export function PullToRefreshIndicator({
           <svg
             viewBox="0 0 24 24"
             className="w-6 h-6 text-primary transition-transform duration-75"
-            style={{ transform: `rotate(${rotation}deg)` }}
+            style={{ '--rotation': `${rotation}deg` } as React.CSSProperties}
           >
             <path
               fill="currentColor"
               d="M12 4V1L8 5l4 3V4zm0 2v5c0 3.87 3.13 7 7 7s7-3.13 7-7V8h-2v3c0 2.76-2.24 5-5 5s-5-2.24-5-5V8H5v3c0 3.87 3.13 7 7 7s7-3.13 7-7V8h-2z"
               opacity={progress < 1 ? 0.3 : 1}
+              style={{ transform: 'rotate(var(--rotation, 0deg))' }}
             />
           </svg>
         )}

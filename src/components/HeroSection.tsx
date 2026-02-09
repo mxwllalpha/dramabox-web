@@ -1,4 +1,6 @@
-import { Sparkles, TrendingUp, Clock } from "lucide-react";
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles';
+import TrendingUp from 'lucide-react/dist/esm/icons/trending-up';
+import Clock from 'lucide-react/dist/esm/icons/clock';
 import type { SupportedLanguage } from "@/types/language";
 import { tServer } from "@/lib/i18n";
 

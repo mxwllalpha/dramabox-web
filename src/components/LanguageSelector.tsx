@@ -9,8 +9,9 @@ import {
 } from "@/components/ui/select";
 import { LANGUAGE_CONFIG, SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/types/language";
 import { useLanguage } from "@/hooks/useLanguage";
+import React from "react";
 
-export function LanguageSelector() {
+export const LanguageSelector = React.memo(function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
 
   return (
@@ -38,4 +39,4 @@ export function LanguageSelector() {
       </SelectContent>
     </Select>
   );
-}
+});

@@ -6,6 +6,9 @@
  */
 
 import { DramaCard } from "./DramaCard";
+
+// Hoist static array to prevent recreation on each render
+const DRAMA_GRID_SKELETON_INDICES = Array.from({ length: 12 }, (_, i) => i);
 import { DramaCardSkeleton } from "./DramaCardSkeleton";
 import type { Drama } from "@/types/drama";
 import type { SupportedLanguage } from "@/types/language";
@@ -111,7 +114,7 @@ export function DramaGrid(props: DramaGridProps) {
   // Default loading renderer
   const defaultRenderLoading = () => (
     <>
-      {Array.from({ length: 12 }).map((_, i) => (
+      {DRAMA_GRID_SKELETON_INDICES.map((i) => (
         <DramaCardSkeleton key={i} index={i} />
       ))}
     </>

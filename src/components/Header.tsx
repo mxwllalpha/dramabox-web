@@ -10,7 +10,8 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Play, Menu } from "lucide-react";
+import Play from 'lucide-react/dist/esm/icons/play';
+import Menu from 'lucide-react/dist/esm/icons/menu';
 import { useLanguage } from "@/hooks/useLanguage";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -23,12 +24,15 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Build nav links with translations
+  // Note: t is excluded from deps - it's called inside useMemo but translations are cached
+  // Only language change should trigger navLinks recreation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const navLinks = useMemo(() => [
     { path: `/${language}`, label: t("nav.home") },
     { path: `/${language}/terbaru`, label: t("nav.latest") },
     { path: `/${language}/terpopuler`, label: t("nav.popular") },
     { path: `/${language}/sulih-suara`, label: t("nav.dubbed") },
-  ], [language, t]);
+  ], [language]);
 
   const handleMobileMenuClose = () => {
     setMobileMenuOpen(false);

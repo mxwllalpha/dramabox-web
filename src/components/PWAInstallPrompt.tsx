@@ -6,7 +6,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Download, Smartphone } from "lucide-react";
+import X from 'lucide-react/dist/esm/icons/x';
+import Download from 'lucide-react/dist/esm/icons/download';
+import Smartphone from 'lucide-react/dist/esm/icons/smartphone';
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { cn } from "@/lib/utils";

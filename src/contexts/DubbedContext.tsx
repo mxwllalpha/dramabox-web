@@ -95,28 +95,25 @@ export function DubbedProvider({ children, language }: DubbedProviderProps) {
     setState((prev) => ({ ...prev, page: Math.max(1, prev.page - 1) }));
   }, []);
 
-  // Computed values
-  const canGoNext = useMemo(() => {
-    return !isFetching && (dramas == null || dramas.length > 0);
-  }, [isFetching, dramas]);
+  // Computed values - memoized separately for optimal re-render behavior
+  const computedValues = useMemo(() => ({
+    dramas,
+    isLoading,
+    isFetching,
+    canGoNext: !isFetching && (dramas == null || dramas.length > 0),
+    canGoPrev: state.page > 1,
+  }), [state.page, dramas, isLoading, isFetching]);
 
-  const canGoPrev = useMemo(() => {
-    return state.page > 1;
-  }, [state.page]);
-
+  // Context value - callbacks are stable (useCallback with empty deps)
   const value = useMemo(
     () => ({
       state: Object.freeze({ ...state }), // Freeze for immutability
-      dramas,
-      isLoading,
-      isFetching,
+      ...computedValues,
       setClassify,
       nextPage,
       prevPage,
-      canGoNext,
-      canGoPrev,
     }),
-    [state, dramas, isLoading, isFetching, setClassify, nextPage, prevPage, canGoNext, canGoPrev]
+    [state, computedValues] // Only state and computedValues trigger recreation
   );
 
   return <DubbedContext.Provider value={value}>{children}</DubbedContext.Provider>;

@@ -6,21 +6,30 @@ import { API_CONFIG } from "@/lib/constants";
 // ===========================================
 export const runtime = 'nodejs';
 
+/**
+ * GET /api/dramabox/dubbed
+ * @implements Vercel async-api-routes: Start promises early, await late
+ */
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  // Map Indonesian classify values to English
-  const classifyParam = searchParams.get("classify") || "terbaru";
-  const classifyMap: Record<string, string> = {
-    "terbaru": "latest",
-    "terpopuler": "popular",
-    "latest": "latest",
-    "popular": "popular"
-  };
-  const classify = classifyMap[classifyParam] || "latest";
-  const page = searchParams.get("page") || "1";
-  const lang = searchParams.get("lang") || API_CONFIG.DEFAULT_LANGUAGE;
+  // Start parsing URL immediately (non-blocking)
+  const searchParamsPromise = Promise.resolve(request.nextUrl.searchParams);
 
-  try {
+  // Start upstream fetch immediately (parallel with searchParams parsing)
+  const upstreamPromise = (async () => {
+    const searchParams = await searchParamsPromise;
+
+    // Map Indonesian classify values to English
+    const classifyParam = searchParams.get("classify") || "terbaru";
+    const classifyMap: Record<string, string> = {
+      "terbaru": "latest",
+      "terpopuler": "popular",
+      "latest": "latest",
+      "popular": "popular"
+    };
+    const classify = classifyMap[classifyParam] || "latest";
+    const page = searchParams.get("page") || "1";
+    const lang = searchParams.get("lang") || API_CONFIG.DEFAULT_LANGUAGE;
+
     const upstreamUrl = `${API_CONFIG.UPSTREAM_API}/api/dramabox/dubbed?classify=${classify}&page=${page}&lang=${lang}`;
     console.log(`[API] Fetching from: ${upstreamUrl}`);
 
@@ -33,13 +42,14 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       console.error(`[API] Upstream error: ${response.status} ${response.statusText}`);
-      return NextResponse.json(
-        { error: "Failed to fetch data", status: response.status },
-        { status: response.status }
-      );
+      throw new Error(`Upstream error: ${response.status} ${response.statusText}`);
     }
 
-    const data = await response.json();
+    return response.json();
+  })();
+
+  try {
+    const data = await upstreamPromise;
     return NextResponse.json(data, {
       headers: {
         'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200',

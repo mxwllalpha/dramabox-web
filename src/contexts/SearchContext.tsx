@@ -56,6 +56,7 @@ export function SearchProvider({ children }: SearchProviderProps) {
     setState((prev) => ({ ...prev, query: "" }));
   }, []);
 
+  // Context value only depends on state - callbacks are stable (useCallback with empty deps)
   const value = useMemo(
     () => ({
       state,
@@ -64,7 +65,7 @@ export function SearchProvider({ children }: SearchProviderProps) {
       setQuery,
       clearSearch,
     }),
-    [state, openSearch, closeSearch, setQuery, clearSearch]
+    [state] // Only state changes trigger recreation
   );
 
   return <SearchContext.Provider value={value}>{children}</SearchContext.Provider>;

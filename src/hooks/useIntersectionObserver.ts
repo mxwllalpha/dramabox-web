@@ -102,6 +102,9 @@ export function useIntersectionObserver({
         observerRef.current.disconnect();
       }
     };
+    // Note: hasIntersected is intentionally excluded from deps when triggerOnce=true
+    // to prevent effect re-running after intersection. The early return handles the logic.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [root, rootMargin, threshold, triggerOnce, enabled, hasIntersected]);
 
   return {

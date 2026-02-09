@@ -6,7 +6,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X, Download } from "lucide-react";
+import X from 'lucide-react/dist/esm/icons/x';
+import Download from 'lucide-react/dist/esm/icons/download';
 import { skipWaiting, waitForSWUpdate } from "@/lib/sw-registration";
 
 export function SWUpdateBanner() {

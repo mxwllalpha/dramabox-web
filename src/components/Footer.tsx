@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Play, ExternalLink } from "lucide-react";
+import Play from 'lucide-react/dist/esm/icons/play';
+import ExternalLink from 'lucide-react/dist/esm/icons/external-link';
 import { useLanguage } from "@/hooks/useLanguage";
 import { t } from "@/lib/i18n";
 

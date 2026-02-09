@@ -21,7 +21,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Play, Flame } from "lucide-react";
+import Play from 'lucide-react/dist/esm/icons/play';
+import Flame from 'lucide-react/dist/esm/icons/flame';
 import type { Drama } from "@/types/drama";
 import type { SupportedLanguage } from "@/types/language";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -97,6 +98,7 @@ export function DramaCard({
   const linkHref = href || `/${language}/detail/${drama.bookId}`;
 
   // Create stable context value
+  // Note: t is excluded from deps - translations are cached and t function is stable per language
   const contextValue = useMemo(
     () => ({
       drama,
@@ -109,7 +111,7 @@ export function DramaCard({
       altText,
       t,
     }),
-    [drama, language, index, shouldLoad, isPriority, coverUrl, tags, altText, t]
+    [drama, language, index, shouldLoad, isPriority, coverUrl, tags, altText] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   // If custom children provided, use compound pattern

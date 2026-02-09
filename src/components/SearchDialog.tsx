@@ -10,7 +10,8 @@
 import { useMemo, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { Search, X } from "lucide-react";
+import Search from "lucide-react/dist/esm/icons/search";
+import X from "lucide-react/dist/esm/icons/x";
 import type { SupportedLanguage } from "@/types/language";
 import { useSearchContext } from "@/contexts/SearchContext";
 import { useDebounce } from "@/hooks/useDebounce";

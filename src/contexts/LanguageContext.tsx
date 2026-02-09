@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import type { SupportedLanguage } from '@/types/language';
 import {
   DEFAULT_LANGUAGE,
@@ -31,10 +31,10 @@ export interface ILanguageContext {
   setLanguage(lang: SupportedLanguage): void;
 
   /** Check if a language is supported */
-  isSupported(lang: string): lang is SupportedLanguage;
+  readonly isSupported: (lang: string) => lang is SupportedLanguage;
 
   /** Get available languages */
-  getAvailableLanguages(): readonly SupportedLanguage[];
+  readonly getAvailableLanguages: () => readonly SupportedLanguage[];
 }
 
 /**
@@ -71,52 +71,36 @@ interface LanguageProviderProps {
 }
 
 /**
- * Language Provider Implementation
+ * Helper functions for language management
+ * These are module-level stable functions that won't cause re-renders
  */
-class LanguageContextImpl implements ILanguageContext {
-  constructor(
-    private _language: SupportedLanguage,
-    private setLanguageState: (lang: SupportedLanguage) => void,
-    private languageStorage: ReturnType<typeof createStorage<SupportedLanguage>>
-  ) {}
+function isSupported(lang: string): lang is SupportedLanguage {
+  return validateLanguage(lang) === lang;
+}
 
-  get language() {
-    return this._language;
-  }
+function getAvailableLanguages(): readonly SupportedLanguage[] {
+  return AVAILABLE_LANGUAGES;
+}
 
-  setLanguage(lang: SupportedLanguage): void {
-    this._language = lang;
-    this.setLanguageState(lang);
-    this.languageStorage.set(lang);
+function handleLanguageNavigation(lang: SupportedLanguage): void {
+  if (typeof window !== 'undefined') {
+    const currentPath = window.location.pathname;
+    const pathSegments = currentPath.split('/').filter(Boolean);
+    if (pathSegments.length > 0) {
+      const isDetailOrWatchPage = pathSegments[1] === 'detail' || pathSegments[1] === 'watch';
 
-    // Navigate to new language route
-    if (typeof window !== 'undefined') {
-      const currentPath = window.location.pathname;
-      const pathSegments = currentPath.split('/').filter(Boolean);
-      if (pathSegments.length > 0) {
-        const isDetailOrWatchPage = pathSegments[1] === 'detail' || pathSegments[1] === 'watch';
-
-        if (isDetailOrWatchPage) {
-          window.location.href = '/' + lang;
-        } else {
-          pathSegments[0] = lang;
-          window.location.href = '/' + pathSegments.join('/');
-        }
+      if (isDetailOrWatchPage) {
+        window.location.href = '/' + lang;
+      } else {
+        pathSegments[0] = lang;
+        window.location.href = '/' + pathSegments.join('/');
       }
     }
-  }
-
-  isSupported(lang: string): lang is SupportedLanguage {
-    return validateLanguage(lang) === lang;
-  }
-
-  getAvailableLanguages(): readonly SupportedLanguage[] {
-    return AVAILABLE_LANGUAGES;
   }
 }
 
 export function LanguageProvider({ children, initialLanguage }: LanguageProviderProps) {
-  // Create versioned storage for language
+  // Create versioned storage for language - stable reference
   const languageStorage = useMemo(() => createStorage<SupportedLanguage>({
     key: STORAGE_KEYS.LANGUAGE,
     version: STORAGE_VERSIONS.LANGUAGE,
@@ -128,6 +112,7 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load language from storage on mount, or use initialLanguage from route
+  // Note: languageStorage excluded from deps - it's stable and won't change
   useEffect(() => {
     if (initialLanguage) {
       setLanguageState(initialLanguage);
@@ -144,7 +129,16 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
       }
       setIsInitialized(true);
     }
-  }, [initialLanguage, languageStorage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLanguage]);
+
+  // Stable setLanguage callback - avoids re-renders in consumers
+  const setLanguage = useCallback((lang: SupportedLanguage) => {
+    setLanguageState(lang);
+    languageStorage.set(lang);
+    handleLanguageNavigation(lang);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Don't render children until language is initialized to prevent hydration mismatch
   if (!isInitialized) {
@@ -152,15 +146,13 @@ export function LanguageProvider({ children, initialLanguage }: LanguageProvider
   }
 
   // Create stable context value to prevent infinite re-renders
-  const contextValue = useMemo(() => {
-    const impl = new LanguageContextImpl(language, setLanguageState, languageStorage);
-    return {
-      language: impl.language,
-      setLanguage: impl.setLanguage.bind(impl),
-      isSupported: impl.isSupported.bind(impl),
-      getAvailableLanguages: impl.getAvailableLanguages.bind(impl),
-    } as LanguageContextValue;
-  }, [language, setLanguageState, languageStorage]);
+  // All callbacks are stable, and only language changes trigger re-creation
+  const contextValue = useMemo<LanguageContextValue>(() => ({
+    language,
+    setLanguage,
+    isSupported,
+    getAvailableLanguages,
+  }), [language, setLanguage]);
 
   return (
     <LanguageContext.Provider value={contextValue}>

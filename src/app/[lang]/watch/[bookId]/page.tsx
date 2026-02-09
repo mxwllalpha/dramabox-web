@@ -3,7 +3,11 @@
 import React, { use, useMemo, useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useDramaDetail, useEpisodes } from "@/hooks/useDramaDetail";
-import { ChevronLeft, ChevronRight, Play, Loader2, Settings } from "lucide-react";
+import ChevronLeft from "lucide-react/dist/esm/icons/chevron-left";
+import ChevronRight from "lucide-react/dist/esm/icons/chevron-right";
+import Play from "lucide-react/dist/esm/icons/play";
+import Loader2 from "lucide-react/dist/esm/icons/loader-2";
+import Settings from "lucide-react/dist/esm/icons/settings";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";

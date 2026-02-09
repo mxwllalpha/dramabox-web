@@ -7,7 +7,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Search, Bell, ChevronLeft } from "lucide-react";
+import Menu from 'lucide-react/dist/esm/icons/menu';
+import X from 'lucide-react/dist/esm/icons/x';
+import Search from 'lucide-react/dist/esm/icons/search';
+import Bell from 'lucide-react/dist/esm/icons/bell';
+import ChevronLeft from 'lucide-react/dist/esm/icons/chevron-left';
 import { useLanguage } from "@/hooks/useLanguage";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";

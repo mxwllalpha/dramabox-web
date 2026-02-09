@@ -1,7 +1,9 @@
 "use client";
 
 import { useDramaDetail } from "@/hooks/useDramaDetail";
-import { Play, Calendar, ChevronLeft } from "lucide-react";
+import Play from "lucide-react/dist/esm/icons/play";
+import Calendar from "lucide-react/dist/esm/icons/calendar";
+import ChevronLeft from "lucide-react/dist/esm/icons/chevron-left";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";

@@ -3,6 +3,9 @@
  *
  * Centralized exports for all shadcn/ui components.
  * Provides cleaner import paths and compound component access.
+ *
+ * NOTE: Prefer importing directly from component files for better tree-shaking:
+ * import { Button } from "@/components/ui/button"
  */
 
 // Dialog Component - Compound exports for flexibility
@@ -19,8 +22,6 @@ export {
   DialogDescription,
 } from "./dialog";
 
-// Re-export Dialog as default for convenience
-export { Dialog as default } from "./dialog";
-
-// Button Component
-export { Button, buttonVariants, type ButtonProps } from "./button";
+// Button Component - Use export type for type-only exports
+export { Button, buttonVariants } from "./button";
+export type { ButtonProps } from "./button";
